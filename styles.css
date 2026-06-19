@@ -1,0 +1,647 @@
+/* Variables */
+:root {
+    --bg-color: #FFFFFF;
+    --text-color: #111111;
+    --light-gray: #F5F5F7;
+    --medium-gray: #86868B;
+    --accent-color: #0071E3; 
+    --accent-hover: #0077ED;
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Mobile View Compression & Scaling (10% Reduction) --- */
+@media (max-width: 768px) {
+    html {
+        /* Drop base font-size from 100% to 90% (Exactly a 10% reduction) */
+        font-size: 90%; 
+    }
+
+    body {
+        /* Reduce global line height slightly so text shrinks proportionally */
+        line-height: 1.42; 
+    }
+
+    /* Shrink section padding so elements aren't forced too close vertically */
+    section {
+        padding: 5rem 6% !important; /* Shrunk padding + wider safe-edges */
+    }
+
+    /* Scale down the taller mini-cards slightly so they fit beautifully on mobile screens */
+    .service-grid {
+        gap: 1.25rem; /* Tighten the gap between the cards */
+    }
+
+    .service-card { 
+        min-height: 340px; /* Reduced from 400px to match the 10% layout drop */
+    }
+    
+    .card-content {
+        padding: 1.75rem; /* Give the text inside the card more breathing space */
+    }
+}
+
+/* Base Utilities */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; 
+}
+
+body {
+    font-family: var(--font-stack);
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    outline: none;
+}
+
+/* --- 1. The "Void" Behind the Site --- */
+body {
+    /* When the page content shrinks, this dark color will show around the edges */
+    background-color: #000000; 
+}
+/* --- 1. The Main Page Canvas --- */
+.page-content {
+    background-color: #FFFFFF; 
+    position: relative;
+    z-index: 1; 
+    transform-origin: center top; 
+    transform: scale(1) translateY(0);
+    border-radius: 0;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                border-radius 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- 2. The iOS Push-Back Transform --- */
+.page-content.menu-active {
+    transform: scale(0.94) translateY(2vh); 
+    border-radius: 24px; 
+    overflow: hidden;
+}
+
+/* --- 3. The Invisible Dark Overlay --- */
+.page-content::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 10; 
+    border-radius: inherit; 
+}
+/* --- 4. The Active Dark Overlay --- */
+.page-content.menu-active::after {
+    opacity: 0.45; 
+    pointer-events: auto; /* Turns the dark overlay into a physical click-shield */
+    cursor: pointer; /* Shows a hand icon on desktop so users know they can click it */
+}
+
+.noise-overlay {
+    position: fixed;
+    top: -50%; left: -50%; right: -50%; bottom: -50%;
+    width: 200vw; height: 200vh;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.1;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Typography */
+h1, h2, h3 {
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1.1; margin-bottom: 1rem; }
+h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1.5rem; text-align: center; }
+h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+p { font-size: 1.125rem; color: var(--medium-gray); margin-bottom: 1.5rem; }
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 980px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.3s ease; 
+    border: none;
+    will-change: transform;
+    position: relative;
+}
+
+.btn-primary {
+    background-color: var(--accent-color);
+    color: #FFFFFF;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+.btn-secondary {
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background-color: transparent; 
+    overflow: hidden; 
+    z-index: 1; 
+}
+
+.btn-secondary::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(240, 245, 255, 0.12);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    z-index: -1; 
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover { transform: scale(1.02); }
+.btn-secondary:hover::before { background-color: rgba(255, 255, 255, 0.2); }/* Navigation Base (Top of Main Page) */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: transparent; 
+    
+    /* Safely locked above the 1001 drop-down menu */
+    z-index: 9999; 
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid transparent;
+    color: #FFFFFF; 
+    transition: all 0.2s ease-out; 
+    
+    height: 76px;
+    padding: 0 5%;
+}
+
+/* Navigation Scrolled State (And Sub-Page State) */
+nav.nav-scrolled {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    color: var(--text-color); 
+    
+    height: 60px;
+    padding: 0 5%;
+}
+
+/* --- THE FIX: Solid White When Menu is Open --- */
+/* --- Unravel Origin: Instantly Solid White Navbar --- */
+nav.menu-open {
+    background: #FFFFFF !important; 
+    color: #0A0A0A !important; 
+    border-color: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Ensure the Back Button text matches the size of standard nav links */
+nav > a {
+    font-size: 0.9rem;
+    color: inherit;
+    line-height: 1;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    margin-left: auto;
+}
+
+.nav-links a {
+    font-size: 0.9rem;
+    color: inherit; 
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.nav-links a:hover { opacity: 1; }
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 24px;
+    height: 14px; 
+    cursor: pointer;
+    opacity: 0.9;
+    transition: opacity 0.15s ease-out;
+    z-index: 1003;
+}
+
+.hamburger span {
+    display: block;
+    width: 100%;
+    height: 1.5px; 
+    background-color: currentColor; 
+    border-radius: 2px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    transform-origin: center;
+}
+
+.hamburger.active span:nth-child(1) { transform: translateY(6.25px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-6.25px) rotate(-45deg); }/* --- Apple-Inspired Rolling Menu Overlay (90% Height) --- *//* --- 1. The Container (Holds the text, but has NO background) --- *//* --- 1. The Container --- */
+.menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 90svh; 
+    z-index: 1001; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    visibility: hidden;
+    /* Waits for the background to roll up before completely hiding the container */
+    transition: visibility 0.55s;
+}
+
+/* --- 2. The Background Wave (Now Sharp & Solid) --- */
+.menu-overlay::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; 
+    
+    /* REMOVED GRADIENT: Now a razor-sharp, solid white physical block */
+    background: #FFFFFF; 
+    
+    transform: translateY(-100%);
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- 3. Active States --- */
+.menu-overlay.active { 
+    visibility: visible; 
+    transition: visibility 0s; 
+}
+
+.menu-overlay.active::before {
+    transform: translateY(0);
+}
+/* --- 4. Inner Link Container --- */
+.menu-overlay-links { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 2.5rem; 
+    text-align: center; 
+    
+    /* FIX: Strip all padding so the box doesn't stretch and hit the bottom */
+    padding: 0; 
+    margin: 0;
+    
+    /* THE TUNING KNOB: 
+       By default, this block is now perfectly centered in the 90svh white space. 
+       If the navbar makes the text look visually too high, increase this number 
+       (e.g., 2vh or 4vh) to safely nudge the whole block down. */
+    transform: translateY(0vh); 
+}
+
+
+/* --- 5. Link Typography (FAST EXIT TIMING) --- */
+.menu-overlay-links a {
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+    color: #0A0A0A; 
+    
+    opacity: 0; 
+    transform: translateY(-15px);
+    
+    /* CLOSING SPEED: When the menu closes, the text fades out in just 0.15s */
+    transition: opacity 0.15s ease,
+                transform 0.15s ease,
+                color 0.2s ease;
+}
+
+.menu-overlay-links a:hover { 
+    color: #0071E3; 
+}
+
+/* --- 6. Link Typography (QUICKER ENTRANCE TIMING) --- */
+.menu-overlay.active .menu-overlay-links a { 
+    opacity: 1; 
+    transform: translateY(0);
+    
+    /* OPENING SPEED: Smooth 0.5s reveal, but starts almost immediately */
+    transition: opacity 0.5s ease,
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    
+    /* Reduced the delay from 0.15s to 0.05s so it doesn't feel late */
+    transition-delay: 0.05s; 
+}
+
+
+.hero {
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(to right, rgba(17, 17, 17, 0.85) 0%, rgba(17, 17, 17, 0.4) 100%), url('../images/hero.jpg') no-repeat center center/cover;
+    
+    color: #FFFFFF;
+    padding-top: 80px; 
+    overflow: hidden;
+    z-index: 1;
+}
+
+
+.hero-content { max-width: 650px; margin-left: 5%; z-index: 2; }
+.hero h1 { opacity: 0; animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.hero p { color: rgba(255, 255, 255, 0.85); font-size: 1.25rem; opacity: 0; animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.1s; }
+.hero-buttons { display: flex; gap: 1rem; margin-top: 2rem; opacity: 0; animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.2s; }
+
+.hero-marquee-wrapper {
+    position: absolute;
+    bottom: 30px; left: 0; width: 100%; padding: 10px 0; overflow: hidden; z-index: 2;
+    -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+    pointer-events: none; opacity: 0; animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.3s;
+}
+
+.hero-marquee-track { display: flex; width: max-content; animation: marquee 20s linear infinite; }
+.marquee-item { display: flex; align-items: center; gap: 10px; padding: 0 40px; color: #FFFFFF; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+.marquee-item svg { width: 24px; height: 24px; color: #FFFFFF; }
+
+@keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); } 
+}
+/* --- Global Layout & Containers --- */
+main { position: relative; z-index: 10; background-color: var(--bg-color); box-shadow: 0 -20px 40px rgba(0,0,0,0.06); }
+section { padding: 10rem 5%; }
+.container { max-width: 1200px; margin: 0 auto; }
+
+/* --- Mini-Page Cards --- */
+.services { background-color: var(--light-gray); text-align: center; }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+
+.service-card { 
+    position: relative;
+    overflow: hidden;
+    min-height: 400px; 
+    border-radius: 24px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+    display: flex; 
+    flex-direction: column;
+    justify-content: flex-end;
+    text-align: left;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease; 
+    padding: 0; 
+}
+
+.service-card:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+}
+
+.card-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+}
+
+.service-card:hover .card-bg {
+    transform: scale(1.08);
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,0.85) 100%);
+    z-index: 2;
+}
+
+.card-content {
+    position: relative;
+    z-index: 3;
+    padding: 2.5rem;
+    color: #FFFFFF;
+}
+
+.card-content h3 { font-size: 2rem; margin-bottom: 0.5rem; color: #FFFFFF; }
+.card-content p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+/* --- Sub-Page Full Hero --- */
+.page-hero {
+    height: 70svh;
+    display: flex;
+    align-items: flex-end;
+    padding: 5rem 5%;
+    background-size: cover;
+    background-position: center;
+    color: #FFFFFF;
+}
+
+.page-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.page-hero-content h1 { font-size: clamp(3rem, 6vw, 5rem); margin-bottom: 1rem; color: #FFFFFF; }
+.page-hero-content p { font-size: 1.25rem; color: rgba(255,255,255,0.9); }
+
+/* --- Global Layout & Containers --- */
+main { position: relative; z-index: 10; background-color: var(--bg-color); box-shadow: 0 -20px 40px rgba(0,0,0,0.06); }
+section { padding: 10rem 5%; }
+.container { max-width: 1200px; margin: 0 auto; }
+
+/* --- Mini-Page Cards --- */
+.services { background-color: var(--light-gray); text-align: center; }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+
+.service-card { 
+    position: relative;
+    overflow: hidden;
+    min-height: 400px; 
+    border-radius: 24px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+    display: flex; 
+    flex-direction: column;
+    justify-content: flex-end;
+    text-align: left;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease; 
+    padding: 0; 
+}
+
+.service-card:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+}
+
+.card-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
+}
+
+.service-card:hover .card-bg {
+    transform: scale(1.08);
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 20%, rgba(0,0,0,0.85) 100%);
+    z-index: 2;
+}
+
+.card-content {
+    position: relative;
+    z-index: 3;
+    padding: 2.5rem;
+    color: #FFFFFF;
+}
+
+.card-content h3 { font-size: 2rem; margin-bottom: 0.5rem; color: #FFFFFF; }
+.card-content p { font-size: 1.1rem; color: rgba(255, 255, 255, 0.8); margin: 0; }
+
+/* --- Sub-Page Full Hero --- */
+.page-hero {
+    height: 70svh;
+    display: flex;
+    align-items: flex-end;
+    padding: 5rem 5%;
+    background-size: cover;
+    background-position: center;
+    color: #FFFFFF;
+}
+
+.page-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.page-hero-content h1 { font-size: clamp(3rem, 6vw, 5rem); margin-bottom: 1rem; color: #FFFFFF; }
+.page-hero-content p { font-size: 1.25rem; color: rgba(255,255,255,0.9); }
+
+/* --- The View Transition Magic --- */
+@view-transition { navigation: auto; }
+
+.transition-real-estate { view-transition-name: real-estate-morph; }
+.transition-vehicles { view-transition-name: vehicles-morph; }
+.transition-books { view-transition-name: books-morph; }
+
+::view-transition-group(*) {
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Contact */
+.contact { background-color: var(--bg-color); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.contact-info p { color: var(--text-color); font-weight: 500; font-size: 1.2rem;}
+.contact-info span { color: var(--medium-gray); display: block; margin-bottom: 1.5rem; font-size: 1rem; font-weight: 400;}
+.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.contact-form input, .contact-form textarea { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #d2d2d7; background-color: var(--light-gray); font-family: inherit; font-size: 1rem; transition: border-color 0.3s; }
+.contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--accent-color); background-color: #FFFFFF; }
+.contact-form textarea { resize: vertical; min-height: 150px; }
+
+/* Footer */
+footer { background-color: var(--light-gray); padding: 5rem 5% 3rem; text-align: center; }
+.footer-links { margin-bottom: 2rem; }
+.footer-links a { margin: 0 1rem; color: var(--medium-gray); font-size: 0.9rem; }
+.footer-links a:hover { color: var(--text-color); }
+.disclaimer { font-size: 0.8rem; color: var(--medium-gray); margin-top: 2.5rem; border-top: 1px solid #d2d2d7; padding-top: 2rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+
+/* Utilities */
+@keyframes fadeInUp { 
+    0% { opacity: 0; transform: translateY(30px); }
+    100% { opacity: 1; transform: translateY(0); } 
+}
+
+.fade-in-section { opacity: 0; transform: translateY(30px); transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1); will-change: opacity, transform; }
+.fade-in-section.is-visible { opacity: 1; transform: none; }
+
+/* Mobile Responsiveness */
+@media (max-width: 900px) {
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    .about-grid, .contact-grid, .why-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    section { padding: 6rem 5%; }
+    .hero-content { margin-left: 0; text-align: center; }
+    .hero-buttons { justify-content: center; }
+    .about-image { height: 380px; }
+}
+/* --- View Transition Z-Index Fix --- */
+
+/* 1. Pull the navbar into the View Transition engine */
+nav {
+    view-transition-name: main-navbar;
+}
+
+/* 2. Force the navbar's transition layer to sit above the expanding cards */
+::view-transition-group(main-navbar) {
+    z-index: 9999;
+}
+/* --- View Transition White Flash Fix --- */
+html {
+    /* Forces the absolute bottom layer of the browser to be dark */
+    background-color: var(--bg-color, #0a0a0a); 
+}
+
+::view-transition {
+    /* Prevents the transition animation from fading to white */
+    background-color: var(--bg-color, #0a0a0a);
+}
+/* --- Cinematic Multi-Page Crossfade --- */
+
+/* 1. Define smooth fade keyframes */
+@keyframes luxuryFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes luxuryFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* 2. Fade out the old page text and layout smoothly */
+::view-transition-old(root) {
+    animation: 0.25s ease-out both luxuryFadeOut;
+    mix-blend-mode: normal;
+}
+
+/* 3. Fade in the new page text and layout in perfect sync with the morphing image */
+::view-transition-new(root) {
+    animation: 0.6s cubic-bezier(0.16, 1, 0.3, 1) both luxuryFadeIn;
+    mix-blend-mode: normal;
+}
